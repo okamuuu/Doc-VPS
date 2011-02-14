@@ -1,0 +1,197 @@
+/*-  BASE STYLES
+----------------------------------------------------------------------*/
+
+/*- self-clearing floats ----------*/
+
+.mod:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+/*- fluid images and objects ----------*/
+
+img,
+object,
+embed {max-width: 100%;}
+
+
+/*- LET'S GET STARTED!
+----------------------------------------------------------------------*/
+.shadowbox {
+position: relative;
+display: block;
+background-color: white;
+-moz-box-shadow: 0px 0px 4px silver;
+-webkit-box-shadow: 0px 0px 4px silver;
+box-shadow: 0px 0px 4px silver;
+}
+
+abbr {
+    cursor: help;
+}
+
+a {position: relative; color: #CCC; -webkit-transition: all 0.3s ease-in;}
+a:active {position: relative; top: 1px;}
+a:hover { color: #000000; -webkit-transition: all 0.3s ease-in;}
+
+body {
+    background: fixed -webkit-gradient(linear, left bottom, left top, color-stop(0, rgb(255,255,255)), color-stop(0.62, rgb(244,244,244)));
+    background: #F4F4F4;
+    color: #000;
+    font: normal 16px/22px 'Helvetica Neue', Helvetica, Arial, Verdana, sans-serif;
+    margin: 0  0 36px 0;
+    padding: 0;
+}
+
+div.wrap {
+    width: 920px; 
+    margin: 0 auto; 
+}
+
+header {
+    padding: 20px 0;
+    background-color:rgba(255,255,255,1);
+}
+
+header p#title {
+    margin: 0 0 0 0; 
+    font-weight: normal;
+    font: normal 42px Helvetica, "aurea-ultra-1", "aurea-ultra-2", georgia, times, serif;
+    background: none;
+}
+
+
+header p#title a {
+    font-weight: bold;
+    text-decoration: none;
+}
+
+nav#tab {
+    clear: both;
+    text-align: right;
+    color:#FFFFFF;
+    margin: 0 0 30px 0;
+    padding: 0 0 0 0;
+    background-color: #FFFFFF; /*#332211;*/
+    border-bottom: 1px solid #CCCCCC;
+}
+
+nav#tab ol li { float: left;  list-style: none; margin:0; padding:0; }
+nav#tab ol li:last-child {padding-right: 0;}
+        
+nav#tab ol li a {
+    margin: 5px; 
+    text-decoration: none;
+}
+
+nav#tab ol li.current a,
+nav#tab ol li a:link, 
+nav#tab ol li a:visited, 
+nav#tab ol li a:hover {
+    display:block;
+    margin:0;
+    padding:15px 45px 15px 0;
+}
+
+nav#tab ol li.current a,
+nav#tab ol li a:hover { color: #000;}
+nav#tab ol li a:before {content: "\2605\0020";}
+
+nav#pagenav ul {
+    margin: 0;
+    padding:5px;
+}
+
+nav#pagenav ul li {
+    color: #CCCCCC;
+    display: block;
+    float: left;
+    position: relative;
+    overflow: hidden;
+    line-height: 21px;
+    margin: 0px 6px 0px 0;
+    padding: 0px 10px 0px 0;
+    -webkit-transition: all 0.3s ease-in;
+}
+
+nav#pagenav ul li:hover {
+    color: #333333;
+    -webkit-transition: all 0.3s ease-in;
+}
+
+#content {
+}
+
+#content #slidesContainer {
+    margin: 0;
+    padding: 0; 
+}
+ 
+#content #slidesContainer .slide {}
+
+#content #slidesContainer .slide article {
+    margin: 30px 2px;
+    padding: 30px;
+}
+
+#content article h1 {
+    padding: 0 0 15px 0;
+    border-bottom: 1px solid #CCCCCC;
+    width: auto; 
+    margin-bottom: 30px; 
+    font-size: 38px; 
+    line-height: 38px;
+}
+
+#content article h2 {
+    padding: 30px 0 15px 0;
+    border-bottom: 1px solid #CCCCCC;
+    width: auto; 
+    margin-bottom: 30px; 
+    font: normal 24px/24px "aurea-ultra-1","aurea-ultra-2", georgia, times, serif;
+}
+ 
+#content article p {
+    margin: 0 0 15px 0;
+}
+
+#content article pre {
+    margin: 0 0 30px 0;
+    padding: 15px;
+    border: 1px solid #CCCCCC;
+    background-color: #EEEEEE;
+}
+ 
+#content article pre code {
+    background-color:rgba(255,255,255,0);
+}
+ 
+footer {
+    text-align: center;
+    width: 100%;
+    clear: both;
+    position: relative; 
+    margin: 60px 0 0; 
+    padding: 0 0 20px; 
+    font-size: 12px;
+}
+
+footer img {
+    width: 32px; 
+    height: 28px; 
+    margin-right: 3px; 
+    margin-top: -2px; 
+    opacity: .9; 
+    -webkit-transition: all 0.3s ease-in; 
+    vertical-align: middle;
+}
+    
+footer img:hover {
+    -webkit-transform: rotate(-10deg) scale(1.8); 
+    opacity: 1; 
+    -webkit-transition: all 0.3s;
+}
+

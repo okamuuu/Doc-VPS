@@ -1,0 +1,16 @@
+一般ユーザー作成
+================
+
+通常rootユーザーとしてログインしたり、作業を行ったりはしません。
+一般ユーザーを作成し、以後ログインは一般ユーザーで行う様にします。
+
+ここでは例としてhomepageと 名付けていますが各自で好きな名前を使用して下さい。
+
+    # addgroup --gid 1000 agent
+    # useradd homepage -g agent --uid 1001 -m 
+    # passwd homepage
+    Changing password for user homepage.
+    New UNIX password:
+    Retype new UNIX password:
+    passwd: all authentication tokens updated successfully.
+

@@ -1,0 +1,79 @@
+アクセス元を制限
+================
+
+仮想サーバ起動直後はサーバーは無防備の状態で、不特定多数のネットワークからログインを試みる事ができます。
+まずはアクセスを一部のネットワークからのみ許可するようにします。
+
+自身が利用しているネットワークを確認する
+----------------------------------------
+
+現時点ではSSHポートに対して誰でもアクセスできる状態です。 自分が使用しているISP以外からはアクセスできないように規制します。
+
+過去のログインユーザー一覧情報を表示して 自身が利用しているISPを確認します。
+
+    # last -a
+    root     pts/0        Mon Feb 14 20:50   still logged in    xx123-45-658-151.xxx.example.ne.jp
+    reboot   system boot  Mon Feb 14 20:47          (00:19)     2.6.18-194.26.1.el5
+    reboot   system boot  Mon Jan 24 16:41          (00:23)     2.6.18-194.26.1.el5
+
+    wtmp begins Mon Jan 24 16:41:41 2011
+
+ここでは xx123-45-658-151.xxx.example.ne.jpと表示されていたと仮定します。
+
+自身が利用しているネットワーク以外からのSSHを禁止する
+-----------------------------------------------------
+
+つまり、自分が使用しているISP以外からはアクセスできないようにします。
+まずは/etc/hosts.denyを確認します。
+
+    # cat /etc/hosts.deny
+    # hosts.deny    This file describes the names of the hosts which are
+    #               *not* allowed to use the local INET services, as decided
+    #               by the '/usr/sbin/tcpd' server.
+    #
+    # The portmap line is redundant, but it is left to remind you that
+    # the new secure portmap uses hosts.deny and hosts.allow.  In particular
+    # you should know that NFS uses portmap!
+    
+このファイルの最終行に、規制したい操作を追記します。
+    
+    # echo 'All: All' >> /etc/hosts.deny 
+
+/etc/hosts.denyが次のようになっている事を確認して下さい。
+
+    # cat /etc/hosts.deny
+    # hosts.deny    This file describes the names of the hosts which are
+    #               *not* allowed to use the local INET services, as decided
+    #               by the '/usr/sbin/tcpd' server.
+    #
+    # The portmap line is redundant, but it is left to remind you that
+    # the new secure portmap uses hosts.deny and hosts.allow.  In particular
+    # you should know that NFS uses portmap!
+
+    ALL: ALL
+
+次に/etc/hosts.allowを確認します。 
+
+    # cat /etc/hosts.allow  
+    #
+    # hosts.allow   This file describes the names of the hosts which are
+    #               allowed to use the local INET services, as decided
+    #               by the '/usr/sbin/tcpd' server.
+    #
+
+同じく最終行に許可する操作を記述します。
+
+    # echo 'SSHD: ALL .example.ne.jp' >> /etc/hosts.allow
+
+確認します。
+
+    # cat /etc/hosts.allow  
+    #
+    # hosts.allow   This file describes the names of the hosts which are
+    #               allowed to use the local INET services, as decided
+    #               by the '/usr/sbin/tcpd' server.
+    #
+    
+    SSHD: ALL .example.ne.jp
+
+

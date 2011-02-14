@@ -1,0 +1,27 @@
+Login
+=====
+
+仮想サーバ起動
+--------------
+
+さくらのコントロールパネルから_仮想サーバ_を起動します。
+
+SSHログイン
+-----------
+
+仮想サーバが起動したらsshによるログインを行います。私はMacユーザなのでterminalから以下のようにコマンドを実行しました。xxx.xxx.xxx.xxxは各自契約していてるIPアドレスに置き換えて下さい。
+
+    % ssh root@xxx.xxx.xxx.xxx
+
+初回ログイン時には以下のような警告を受けます。yesと答えて下さい。
+
+    The authenticity of host 'xxx.xxx.xxx.xxx (yyy.yyy.yyy.yyy)' can't be established.
+    RSA key fingerprint is aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa
+    Are you sure you want to continue connecting (yes/no)? yes
+
+以下の表示が行われます。次回からは上記のような警告は表示されません。
+
+    Warning: Permanently added 'xxx.xxx.xxx.xxx' (RSA) to the list of known hosts.
+
+
+
