@@ -4,13 +4,26 @@
 通常rootユーザーとしてログインしたり、作業を行ったりはしません。
 一般ユーザーを作成し、以後ログインは一般ユーザーで行う様にします。
 
-ここでは例としてhomepageと 名付けていますが各自で好きな名前を使用して下さい。
+groupadd, useradd, passwd コマンドにpathが通っている事を確認。
 
-    # addgroup --gid 1000 agent
+    # which groupadd
+    /usr/sbin/groupadd
+    # which useradd
+    /usr/sbin/useradd
+    # which paddwd
+    /usr/bin/passwd
+
+group,userを作成します。
+
+    # groupadd --gid 1000 agent
     # useradd homepage -g agent --uid 1001 -m 
+
+パスワードを設定します。
+
     # passwd homepage
     Changing password for user homepage.
     New UNIX password:
     Retype new UNIX password:
     passwd: all authentication tokens updated successfully.
 
+ここでは例としてhomepageと 名付けていますが各自で好きな名前を使用して下さい。

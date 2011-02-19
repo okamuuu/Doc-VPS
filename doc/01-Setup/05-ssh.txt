@@ -1,0 +1,120 @@
+SSHログインを制限
+=================
+
+ネットワーク制限とあわせて、ユーザー制限を行いセキュリティを強化します。
+
+作業概要
+--------
+
+* ルートユーザーでのSSHを禁止
+* 認証方法をパスワード方式から鍵認証へ変更
+
+インストール確認
+----------------
+
+一般ユーザーとしてログインをします。
+
+    ssh homepage@xxx.xxx.xxx.xxx
+
+_OpenSSH_がインストールされているかを確認します。
+もっともinstallされていないと遠く離れたデータセンターにアクセスできないのであくまで確認です。
+
+    $ sudo yum list | grep openssh
+    openssh.x86_64                             4.3p2-41.el5_5.1            installed
+    openssh-clients.x86_64                     4.3p2-41.el5_5.1            installed
+    openssh-server.x86_64                      4.3p2-41.el5_5.1            installed
+    openssh-askpass.x86_64                     4.3p2-41.el5_5.1            updates
+ 
+ルートユーザーでのログインを禁止する
+------------------------------------
+
+作業対象となるファイルを開きます。
+
+    $ sudo vi /etc/ssh/sshd_config
+
+以下の項目を次の様に設定します。ついでにパスワードの入力も必須にしておきます。
+
+    PermitRootLogin no
+    PermitEmptyPasswords no
+
+ssh再起動
+
+    $ sudo /sbin/service sshd restart
+
+正しく設定できていればrootユーザーではログインできなくなっているはずです。
+確認するためにログを表示します。
+
+    $ sudo tail -f /var/log/secure
+
+この状態でrootでログインを試みます
+
+    $ ssh root@xxx.xxx.xxx.xxx 
+
+tailコマンドで次のようなログが表示されていれば設定が正しくできています。
+
+    Feb 19 18:20:39 xxxhostname sshd[1234]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=x123-45-658-151.xxx.example.ne.jp user=root
+
+認証方法をパスワード方式から鍵認証へ変更
+----------------------------------------
+
+この状態ではrootユーザーでログインできませんが、あなたと同じISPを契約している人々が一般ユーザーとしてログインを試みる事ができてしまいます。
+
+世の中には自動的にusername,passwordを生成するプログラムを使っていつまでもログインを試みている人がいるため、よりセキュリティを強化する必要があります。
+
+秘密鍵による認証方式へ変更
+--------------------------
+
+秘密鍵と公開鍵を作成します。
+Macユーザーの場合、次のようにして自分の手元にあるPCで鍵を作成できます。
+
+すでに作成してある鍵があれば、それを使ってもかまいません。
+以下、Macで鍵を作成する場合の手順です。
+
+    % mkdir -p ~/.ssh/keys
+    % cd ~/.ssh
+    % ssh-keygen -t dsa -f ~/.ssh/keys/id_dsa
+
+設定ファイルを記述
+
+    % vi ~/.ssh/config
+
+    Host xxx.xxx.xxx.xxx
+     User homepage
+     Port 22
+     Hostname xxxx.sakura.ne.jp
+     IdentityFile ~/.ssh/keys/id_dsa
+     TCPKeepAlive yes 
+     IdentitiesOnly yes 
+
+公開鍵を転送
+
+    % scp ~/.ssh/keys/id_dsa.pub okamura@49.212.8.193:~ 
+
+以降、VPS側での作業です。
+公開鍵を authorized_keys へ追加
+
+    $ mkdir ~/.ssh
+    $ cat ~/id_dsa.pub >> ~/.ssh/authorized_keys
+
+パーミッションを変更    
+
+    $ chmod 0700 ~/.ssh 
+    $ chmod 0600 ~/.ssh/authorized_keys
+
+公開鍵はこの時点で必要ないので削除します。
+
+    $ rm ~/id_dsa.pub
+
+認証方式をパスワード方式から鍵方式へ変更します。
+設定ファイルを開き、以下の項目を設定します。
+
+    $ su vi /etc/ssh/sshd_config
+    PasswordAuthentication no
+
+再起動
+
+    $ sudo /sbin/service sshd restart
+
+この状態では秘密鍵を所有し、かつ、秘密鍵のパスワードを知り、かつ貴方と同じISPを使用できる人間以外はVPSにアクセスできないようになりました。
+
+
