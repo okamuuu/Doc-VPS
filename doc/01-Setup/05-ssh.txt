@@ -88,7 +88,7 @@ Macユーザーの場合、次のようにして自分の手元にあるPCで鍵
 
 公開鍵を転送
 
-    % scp ~/.ssh/keys/id_dsa.pub okamura@49.212.8.193:~ 
+    % scp ~/.ssh/keys/id_dsa.pub homepage@49.212.8.193:~ 
 
 以降、VPS側での作業です。
 公開鍵を authorized_keys へ追加
