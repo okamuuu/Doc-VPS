@@ -1,0 +1,391 @@
+yumの最適化
+===========
+
+CentOSはFedoraと比較するとyumで利用できるパッケージが少ないです。
+Fedoraのように多数のパッケージを利用するためrpmforge、epel、remiを追加します。
+
+現状確認と準備
+--------------
+
+現状確認
+
+まず現在のパッケージ数を確認します。
+この時点では数が少ないです。
+CentOS5.5 2011/02/26現在
+
+    $ sudo yum list | wc -l
+    3696
+
+アーキテクチャを確認します。
+表示されたのはアーキテクチャです。
+とりあえずCPUの種類だと思って下さい。
+
+    $ uname -i
+    x86_64
+    $ arch
+    x86_64    
+
+32bitか64bitかを判定するコマンド
+
+    $ getconf LONG_BIT
+    64
+
+上記を踏まえて、試しにwgetコマンドを確認します
+
+    $ sudo yum list | grep wget
+    wget.x86_64                                1.11.4-2.el5_4.1            installed
+
+
+Linuxの世界では便利なコマンドが多数存在しており、それらを追加する事ができます。
+
+ただし、上記のようにアーキテクチャにマッチするソースコードをinstallする必要があります。
+また、BというコマンドがAというコマンドを必要としている場合、先にAをinstallしないとBをinstall できない、という問題が発生します。
+
+アーキテクチャを調べずに、必要なコマンドがあれば先にそれをインストールする必要があるなら自動的にそう言ってくれてinstallしてくれたら便利です。
+
+それらはyumというパッケージ管理ツールによって実現できます。
+そして、このパッケージ管理ツールで利用できるパッケーズの数を3969よりももっとたくさん増やします。
+
+Plugins:yum-priorities
+----------------------
+
+リポジトリに優先度を付加するためのパッケージを導入します。
+
+    $ sudo yum -y install yum-priorities
+    ...
+    Installed:
+    yum-priorities.noarch 0:1.1.16-14.el5.centos.1
+
+    Complete!
+
+標準レポジトリを最優先に設定
+----------------------------
+
+以下の項目を追加します。
+
+    $ sudo vi /etc/yum.repos.d/CentOS-Base.repo
+
+    [base]
+    ...
+    priority=1
+    
+    [updates]
+    ...
+    priority=1
+    
+    [addons]
+    ...
+    priority=1
+    
+    [extras]
+    ...
+    priority=1
+    
+    [centosplus]
+    ...
+    enabled=1
+    priority=2
+    
+    [contrib]
+    ...
+    enabled=1
+    priority=3
+
+リポジトリの優先度に関する設定は、1 ～ 99 の範囲でレベルを設定します。 これらはCentOS の公式リポジトリ（base, updates, addons, extras) は優先度を最高の1にしておきます。
+
+centosplusとcontribはデフォルトがenabled=0となっているのでこれを有効にします。優先度を少しだけ下げておきます。
+
+Repositories:rpmforge
+---------------------
+
+下記ULRを参考にrpmforgeで管理しているパッケージもyumで扱えるようにします。
+
+http://wiki.centos.org/AdditionalResources/Repositories/RPMForge
+
+以下手順
+
+    $ cd /usr/local/src
+    $ sudo wget http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el5.rf.x86_64.rpm
+    $ sudo rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
+    $ sudo rpm -K rpmforge-release-0.5.2-2.el5.rf.*.rpm
+    rpmforge-release-0.5.2-2.el5.rf.x86_64.rpm: (sha1) dsa sha1 md5 gpg OK
+    $ sudo rpm -i rpmforge-release-0.5.2-2.el5.rf.*.rpm
+
+設定ファイル編集
+
+    $ sudo vi /etc/yum.repos.d/rpmforge.repo
+
+以下の項目を修正します。優先順位はひとまず標準レポジトリより下げています。また、明示的にこのレポジトリを使用すると宣言しない場合はenabled(無効)にしています。
+
+    [rpmforge]
+    enabled = 0
+    priority= 10
+
+    [rpmforge-extras]
+    enabled = 0
+    priority= 11
+
+Repositories:epel
+-----------------
+
+次のURLを参考にします。
+
+https://fedoraproject.org/wiki/EPEL/FAQ#howtouse
+
+以下インストール手順
+
+    $ cd /usr/local/src
+    $ sudo wget http://download.fedora.redhat.com/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm
+    $ sudo rpm --import http://download.fedora.redhat.com/pub/epel/RPM-GPG-KEY-EPEL
+    $ sudo rpm -K epel-release-5-4.noarch.rpm
+    epel-release-5-4.noarch.rpm: (sha1) dsa sha1 md5 gpg OK
+    $ sudo rpm -i epel-release-5-4.noarch.rpm
+
+設定ファイル編集
+
+    $ sudo vi /etc/yum.repos.d/epel.repo
+
+    [epel]
+    enabled=0
+    priority=20
+
+Repositories:remi
+-----------------
+
+php, mysqlに強いのでremiもくわえます。公式サイトは以下
+
+http://rpms.famillecollet.com/
+
+インストール手順
+
+    $ cd /usr/local/src
+    $ sudo wget http://rpms.famillecollet.com/el5.x86_64/remi-release-5-8.el5.remi.noarch.rpm
+    $ sudo rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi
+    $ sudo rpm -K remi-release-5-8.el5.remi.noarch.rpm 
+    remi-release-5-8.el5.remi.noarch.rpm: (sha1) dsa sha1 md5 gpg OK
+    $ sudo rpm -i remi-release-5-8.el5.remi.noarch.rpm
+
+設定
+
+    $ sudo vi /etc/yum.repos.d/remi.repo
+
+    [remi]
+    enabled=0
+    priority=30
+
+パッケージ数の増加を確認
+------------------------
+
+標準レポジトリのみの場合と、rpmforge, epel, remiを追加した場合のパッケージ数を確認します。
+
+    $ yum list | wc -l
+    3699
+    $ yum list --enablerepo=rpmforge | wc -l
+    8373
+    $ yum list --enablerepo=epel | wc -l
+    9843
+    $ yum list --enablerepo=remi | wc -l
+    4003
+
+Plugins:fastestmirror
+---------------------
+
+yum-fastestmirrorの概要を読みます。
+
+    $ yum search yum-fastestmirror
+    ...
+    yum-fastestmirror.noarch : Yum plugin which chooses fastest repository from a mirrorlist
+
+installedの状態である事を確認します。
+
+    $ sudo yum list | grep yum-fastestmirror
+    yum-fastestmirror.noarch                  1.1.16-14.el5.centos.1      installed 
+
+installedと表示されていない場合はinstall
+
+    $ sudo yum -y install yum-fastestmirror 
+
+Plugins:yum-versionlock
+------------------------
+
+yum-updateの対象に含めたくないパッケージを指定できるようにします。
+
+    $ yum info yum-versionlock
+    Name       : yum-versionlock
+    Arch       : noarch
+    Version    : 1.1.16
+    Release    : 14.el5.centos.1
+    Size       : 15 k
+    Repo       : base
+    Summary    : Yum plugin to lock specified packages from being updated
+    URL        : http://linux.duke.edu/yum/download/yum-utils/
+    License    : GPLv2+
+    Description: This plugin takes a set of name/versions for packages and excludes all other
+               : versions of those packages (including optionally following obsoletes). This
+               : allows you to protect packages from being updated by newer versions,
+               : for example. 
+
+インストールされているかを確認
+
+    $ sudo yum list | grep yum-versionlock
+    yum-versionlock.noarch                    1.1.16-14.el5.centos.1      base
+
+インストール
+
+    $ sudo yum -y install yum-versionlock
+    ...
+    Installed:
+      yum-versionlock.noarch 0:1.1.16-14.el5.centos.1 
+    Complete!
+
+versionlockしたいパッケージは以下のファイルを編集します。
+
+    $ cat /etc/yum/pluginconf.d/versionlock.conf | grep locklist
+    locklist = /etc/yum/pluginconf.d/versionlock.list
+
+yumをversionlockしたい場合は次のようにします。
+
+    $ sudo su
+    # rpm -qa yum >> /etc/yum/pluginconf.d/versionlock.list
+    # exit
+    $
+
+Plugins:yum-changelog
+---------------------
+
+info
+
+    $ yum info yum-changelog
+    Name       : yum-changelog
+    Arch       : noarch
+    Version    : 1.1.16
+    Release    : 14.el5.centos.1
+    Size       : 18 k
+    Repo       : base
+    Summary    : Yum plugin for viewing package changelogs before/after updating
+    URL        : http://linux.duke.edu/yum/download/yum-utils/
+    License    : GPLv2+
+    Description: This plugin adds a command line option to allow viewing package changelog
+               : deltas before or after updating packages.
+
+installed?
+
+    $ yum list installed yum-changelog 
+    ...
+    Error: No matching Packages to list
+
+install
+    
+    $ sudo yum -y install yum-changelog
+    ...
+    Complete!
+
+use like this
+
+    $ sudo yum --changelog update
+
+Plugins:downloadonly
+--------------------
+
+rpmパッケージをバックアップしたい場合にはこのPluginを追加します。
+
+    $ yum info yum-downloadonly
+    Name       : yum-downloadonly
+    Arch       : noarch
+    Version    : 1.1.16
+    Release    : 14.el5.centos.1
+    Size       : 11 k
+    Repo       : base
+    Summary    : Yum plugin to add downloadonly command option
+    URL        : http://linux.duke.edu/yum/download/yum-utils/
+    License    : GPLv2+
+    Description: This plugin adds a --downloadonly flag to yum so that yum will only download
+               : the packages and not install/update them.
+
+    $ sudo yum -y install yum-downloadonly
+    ...
+    Complete!
+
+    $ sudo yum -y install --downloadonly perl-XML-Simple --downloaddir=/tmp
+    ...
+    exiting because --downloadonly specified
+
+Pluings:yum-cron
+----------------
+
+常駐型のyum-updatesdはメモリを消費するのでcron型のyum-cronを使用します。
+またクライアントPCではなく、サーバー用途であるという前提なのでupdate対象となるパッケージをダウンロードしておきます。
+
+    $ yum info yum-cron
+    ...
+    
+    $ yum list installed yum-cron
+    ...
+    Error: No matching Packages to list
+    
+    $ sudo yum -y install yum-cron
+    ...
+    Complete!
+
+    $ sudo vi /etc/sysconfig/yum-cron
+    CHECK_ONLY=yes
+    DOWNLOAD_ONLY=yes
+
+yum cron開始
+
+    $ /sbin/service yum-cron status
+    Nightly yum update is disabled.
+
+    $ sudo /sbin/service yum-cron start
+    Enabling nightly yum update: [  OK  ]
+
+    $ /sbin/service yum-cron status
+    Nightly yum update is enabled.
+
+再起動後にもyum-cronを開始する
+
+    $ sudo /sbin/chkconfig yum-cron on
+    $ /sbin/chkconfig --list yum-cron
+    yum-cron        0:off   1:off   2:on    3:on    4:on    5:on    6:off
+
+Plugins:yum-security
+--------------------
+
+脆弱性の発見されたパッケージだけは仕方ないから更新するが、それ以外に余計な事をしたくない、という場合にはこちら
+
+    $ yum info yum-security
+    ...
+
+    $ yum list installed yum-security
+    ...
+    Error: No matching Packages to list
+
+    $ sudo yum -y install yum-security
+    ...
+    Complete!
+
+実行方法
+
+    $ yum --security check-update
+    $ yum --security update
+
+yum update
+----------
+
+一通りの設定が終わったらupdateをしておきます。
+
+    $ sudo yum update
+
+
+もし「You mightconsider running yum-complete-transaction first to finish them 」 と表示された場合は yum-complete-transactionを実行します。
+
+    $ sudo /usr/sbin/yum-complete-transaction
+
+yum-updatesdをアンインストール
+------------------------------
+
+少ないメモリで動かすVPS環境なのでメモリをよけいに消費するyum-updatesdを削除します。
+
+    $ sudo yum -y remove yum-updatesd
+
+
